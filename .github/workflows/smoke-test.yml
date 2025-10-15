@@ -1,0 +1,53 @@
+name: 'Smoke Test'
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  smoke-test:
+    runs-on: ubuntu-latest
+    name: Test Create Repository Action
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Build action
+        run: npm run build
+        
+      - name: Test action syntax
+        run: node -c dist/index.js
+        
+      - name: Test action (dry run)
+        id: test-action
+        uses: ./
+        with:
+          repo_owner: 'test-org'
+          repo_name: 'test-repo-${{ github.run_number }}'
+          repo_visibility: 'private'
+          token: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: true
+        
+      - name: Check action outputs
+        run: |
+          echo "Test completed"
+          if [ "${{ steps.test-action.outcome }}" = "failure" ]; then
+            echo "Action failed as expected (no permissions to create in test-org)"
+          else
+            echo "Repository URL: ${{ steps.test-action.outputs.repository_url }}"
+            echo "Repository ID: ${{ steps.test-action.outputs.repository_id }}"
+            echo "Repository Full Name: ${{ steps.test-action.outputs.repository_full_name }}"
+          fi

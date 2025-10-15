@@ -1,0 +1,54 @@
+name: 'Build and Test'
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: Build and validate action
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Build action
+        run: npm run build
+        
+      - name: Validate built action
+        run: |
+          if [ ! -f "dist/index.js" ]; then
+            echo "❌ dist/index.js not found after build"
+            exit 1
+          fi
+          echo "✅ dist/index.js exists"
+          
+          # Test syntax
+          node -c dist/index.js
+          echo "✅ Syntax validation passed"
+          
+          # Check file size
+          size=$(stat -f%z dist/index.js)
+          echo "📦 Bundle size: $size bytes"
+          
+          if [ $size -gt 5000000 ]; then
+            echo "⚠️  Warning: Bundle size is larger than 5MB"
+          fi
+        
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: action-dist
+          path: dist/
