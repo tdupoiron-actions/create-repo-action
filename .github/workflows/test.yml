@@ -1,0 +1,58 @@
+name: Smoke Test
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  test-action:
+    runs-on: ubuntu-latest
+    name: Test Create Repository Action
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Test Action
+        id: create-repo
+        uses: ./
+        with:
+          repo_owner: ${{ github.repository_owner }}
+          repo_name: test-repo-${{ github.run_number }}
+          repo_visibility: private
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Verify Outputs
+        run: |
+          echo "Repository URL: ${{ steps.create-repo.outputs.repository_url }}"
+          echo "Clone URL: ${{ steps.create-repo.outputs.clone_url }}"
+          echo "Repository ID: ${{ steps.create-repo.outputs.repository_id }}"
+          
+          # Check that outputs are not empty
+          if [ -z "${{ steps.create-repo.outputs.repository_url }}" ]; then
+            echo "Error: repository_url is empty"
+            exit 1
+          fi
+          
+          if [ -z "${{ steps.create-repo.outputs.clone_url }}" ]; then
+            echo "Error: clone_url is empty"
+            exit 1
+          fi
+          
+          if [ -z "${{ steps.create-repo.outputs.repository_id }}" ]; then
+            echo "Error: repository_id is empty"
+            exit 1
+          fi
+          
+          echo "✓ All outputs are present and valid"
+      
+      - name: Cleanup - Delete Test Repository
+        if: always()
+        run: |
+          REPO_NAME="test-repo-${{ github.run_number }}"
+          gh repo delete ${{ github.repository_owner }}/${REPO_NAME} --yes || true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

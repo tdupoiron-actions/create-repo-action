@@ -1,0 +1,28 @@
+{
+  "name": "create-repo-action",
+  "version": "1.0.0",
+  "description": "Create a GitHub repository in an organization using Octokit SDK",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "build": "webpack --mode production",
+    "package": "npm run build"
+  },
+  "keywords": [
+    "github",
+    "actions",
+    "octokit",
+    "repository",
+    "automation"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@actions/core": "^1.10.1",
+    "@octokit/rest": "^20.0.2"
+  },
+  "devDependencies": {
+    "webpack": "^5.89.0",
+    "webpack-cli": "^5.1.4"
+  }
+}

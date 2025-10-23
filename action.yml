@@ -1,0 +1,34 @@
+name: 'Create Repository'
+description: 'Create a GitHub repository in an organization using Octokit SDK'
+author: 'tdupoiron-actions'
+
+inputs:
+  repo_owner:
+    description: 'Organization or user name where the repository will be created'
+    required: true
+  repo_name:
+    description: 'Name of the repository to create'
+    required: true
+  repo_visibility:
+    description: 'Repository visibility: public, private, or internal'
+    required: false
+    default: 'private'
+  token:
+    description: 'GitHub token with repo creation permissions'
+    required: true
+
+outputs:
+  repository_url:
+    description: 'URL of the created repository'
+  clone_url:
+    description: 'Clone URL of the created repository'
+  repository_id:
+    description: 'ID of the created repository'
+
+runs:
+  using: 'node20'
+  main: 'dist/index.js'
+
+branding:
+  icon: 'plus-square'
+  color: 'green'
