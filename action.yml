@@ -1,4 +1,4 @@
-name: 'Create Repository'
+name: 'Create Repository tdupoiron 2'
 description: 'Create a GitHub repository in an organization using Octokit SDK'
 author: 'tdupoiron-actions'
 
